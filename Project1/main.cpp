@@ -5,8 +5,6 @@
 
 using namespace std;
 
-//object for output file
-ofstream ofile;
 
 
 //double f(double v1, double v2, double v3, int n) {
@@ -36,9 +34,11 @@ double f(double x){
 
 
 int main(int argc, char *argv[]){
-    int N;
+    //object for output file
+    ofstream ofile;
 
     string filename;
+    int N;
 
     if(argc <= 1){
         cout << "Bad usage: " << argv[0] <<
@@ -51,19 +51,23 @@ int main(int argc, char *argv[]){
     }
 
 
-    double h = 1/(N + 1);
+    double h = 1.0/(N + 1);
     double hh = pow(h, 2);
 
     double d_c[N];
     double b[N];
     double b_c[N];
+    double u[N];
 
 
     for (int i=0; i<N; i++){
         b[i] = hh*f(i*h);
+        cout << b[i] << endl;
     }
 
+
     d_c[0] = 2;
+    d_c[N] = 0;
     b_c[0] = b[0];
 
 
@@ -73,15 +77,44 @@ int main(int argc, char *argv[]){
 //    b_c = new double[N];
 
 
-//    double d[N];
 
 
-    for (int i=1; i<N-1; i++) {
+    for (int i=2; i<N-1; i++) {
         // d_c[i] = d[i] - (a[i-1]*c[i-])/d_c[i-1];
         d_c[i] = 2 - 1/d_c[i-1];
         //b_c[i] = b[i] - (b_c[i-1]*a[i-1])/d_c[i-1];
-        b_c[i] = b[i] - b_c[i-1]/d_c[i-1];
+        b_c[i] = b[i] + b_c[i-1]/d_c[i-1];
     }
+
+    for (int j=N-2; j>0; j--) {
+        u[j] = (b_c[j] + u[j+1])/d_c[j];
+    }
+
+
+    // Declare new filename
+    string fileout = filename;
+    // Convert the size N to string
+    string argument = to_string(N);
+    // Final filename as filename-N
+//    fileout.append(argument);
+    cout << fileout << endl;
+    // Open file
+    ofile.open(fileout);
+
+
+    for (int i=0; i<N; i++) {
+//        ofile << solution[i] << ",";
+
+        if (i == N - 1) {
+            ofile << u[i];
+        }
+        else {
+        ofile << u[i] << ",";
+        }
+
+    }
+
+    ofile.close();
 
 //    delete[] d;
 //    delete[] d_c;
