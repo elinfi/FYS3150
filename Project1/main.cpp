@@ -6,14 +6,6 @@
 using namespace std;
 
 
-
-//double f(double v1, double v2, double v3, int n) {
-
-// x_1 = i*h
-// f(x) = 100*exp(-10*x)
-// b = pow(h, 2)*f_i
-
-
 double f(double x){
     double f_i = 100*exp(-10*x);
 
@@ -21,19 +13,26 @@ double f(double x){
 }
 
 
-//double f(double *v[], int N){
+void for_back_alg(double* a, double* b, double* c, double* b_,
+                  double* g, double* g_, double* v, int N) {
 
-//    double h = 1/(N + 1);
-//    double f[N-2];
-//    double h_2 = 1/(pow(h, 2));
+    // forward substitution
+    for (int i=1; i<N; i++) {
+        b_[i] = b[i] - (a[i-1]*c[i-1])/b_[i-1];
+        g_[i] = g[i] - (g_[i-1]*a[i-1])/b_[i-1];
+    }
 
-//    double f_i = -(v3 + v1 - 2*v2)/(pow(h, 2));
+    // backward substitution
+    // first and last point is zero by boundary conditions
+    for (int i=N-2; i>0; i--) {
+        v[i] = (g_[i] - a[i]*v[i+1])/b_[i];
+    }
+}
 
-//    for (int i=1; i<N-1; i++) {
-//        f[i-1] = -(v[i+1] + v[i-1] - v[i])*h_2;
 
 
 int main(int argc, char *argv[]){
+
     //object for output file
     ofstream ofile;
 
@@ -42,7 +41,7 @@ int main(int argc, char *argv[]){
 
     if(argc <= 1){
         cout << "Bad usage: " << argv[0] <<
-                " read also filename on same line and size of matrix" << endl;
+                " read also filename on same line and size of matrix (N)" << endl;
         exit(1);
     }
     else {
@@ -54,72 +53,56 @@ int main(int argc, char *argv[]){
     double h = 1.0/(N + 1);
     double hh = pow(h, 2);
 
-    double d_c[N];
-    double b[N];
-    double b_c[N];
-    double u[N];
+
+    // creating vectors for matrix A and right side of the equation and initiating all elements to be zero
+    double* a = new double[N] ();      // below diagonal
+    double* b = new double[N] ();      // diagonal
+    double* c = new double[N] ();      // above diagonal
+    double* b_ = new double[N] ();     // changed diagonal
+    double* g = new double[N] ();      // right side of equation
+    double* g_ = new double[N] ();     // changed right side of equation
+    double* v = new double[N] ();      // v vector
 
 
+    // filling up the the array for a, b, c and g
     for (int i=0; i<N; i++){
-        b[i] = hh*f(i*h);
-        cout << b[i] << endl;
+        a[i] = -1;
+        b[i] = 2;
+        c[i] = -1;
+        g[i] = hh*f(i*h);
     }
 
-
-    d_c[0] = 2;
-    d_c[N] = 0;
-    b_c[0] = b[0];
+    // initiating b_
+    b_[0] = b[0];
 
 
-//    d = new double[N];
-//    d_c = new double[N];
-//    b = new double[N];
-//    b_c = new double[N];
+    // solving the differential equation
+    for_back_alg(a, b, c, b_, g, g_, v, N);
 
 
-
-
-    for (int i=2; i<N-1; i++) {
-        // d_c[i] = d[i] - (a[i-1]*c[i-])/d_c[i-1];
-        d_c[i] = 2 - 1/d_c[i-1];
-        //b_c[i] = b[i] - (b_c[i-1]*a[i-1])/d_c[i-1];
-        b_c[i] = b[i] + b_c[i-1]/d_c[i-1];
-    }
-
-    for (int j=N-2; j>0; j--) {
-        u[j] = (b_c[j] + u[j+1])/d_c[j];
-    }
-
-
-    // Declare new filename
-    string fileout = filename;
-    // Convert the size N to string
-    string argument = to_string(N);
-    // Final filename as filename-N
-//    fileout.append(argument);
-    cout << fileout << endl;
     // Open file
-    ofile.open(fileout);
+    ofile.open(filename);
 
-
+    // write the result to file
     for (int i=0; i<N; i++) {
-//        ofile << solution[i] << ",";
-
         if (i == N - 1) {
-            ofile << u[i];
+            ofile << v[i];
         }
         else {
-        ofile << u[i] << ",";
+        ofile << v[i] << ",";
         }
 
     }
 
     ofile.close();
 
-//    delete[] d;
-//    delete[] d_c;
-//    delete[] b;
-//    delete[] b_c;
+    delete[] a;
+    delete[] b;
+    delete[] c;
+    delete[] b_;
+    delete[] g;
+    delete[] g_;
+    delete[] v;
 
 return 0;
 }
