@@ -1,0 +1,4 @@
+#ifndef OPTIMIZED_THOMAS_H
+#define OPTIMIZED_THOMAS_H
+
+#endif // OPTIMIZED_THOMAS_H
