@@ -2,10 +2,6 @@
 #define GAUSS_LEGENDRE_H
 
 
-class gauss_legendre
-{
-public:
-    gauss_legendre();
-};
+void gauss_legendre(double x1, double x2, double x[], double w[], int n);
 
 #endif // GAUSS_LEGENDRE_H
