@@ -1,11 +1,7 @@
 #ifndef GAUSS_QUADRATURE_H
 #define GAUSS_QUADRATURE_H
 
-
-class gauss_quadrature
-{
-public:
-    gauss_quadrature();
-};
+double function(double x1, double y1, double z1, double x2, double y2, double z2);
+double gauss_quadrature(int n, double lambda);
 
 #endif // GAUSS_QUADRATURE_H
