@@ -10,4 +10,21 @@ LIBS += \
         -larmadillo -lblas -llapack
 
 SOURCES += \
-        main.cpp
+        gauss_laguerre.cpp \
+        gauss_legendre.cpp \
+        gauss_quadrature.cpp \
+        improved_gauss_quadrature.cpp \
+    improved_monte_carlo.cpp \
+        main.cpp \
+        monte_carlo.cpp \
+
+HEADERS += \
+    gauss_laguerre.h \
+    gauss_legendre.h \
+    gauss_quadrature.h \
+    improved_gauss_quadrature.h \ \
+    improved_monte_carlo.h \
+    monte_carlo.h
+
+DISTFILES += \
+    plot_gauss_legendre.py
