@@ -27,7 +27,8 @@ double monte_carlo(int n, double lambda, bool timing) {
     double b = lambda;
 
     // generate engine
-    int seed = time_t(0);
+//    int seed = time_t(0);
+    int seed = 1337;
     mt19937_64 engine(seed);
 
     // generate random numbers in the interval [a, b]

@@ -6,6 +6,7 @@
 #include "improved_monte_carlo.h"
 #include <cmath>
 #include <random>
+//#include <mpi.h>
 
 using namespace std;
 
@@ -35,23 +36,24 @@ int main()
     // Improved Gauss Quadrature
 
     bool timing = true;
-    for (int n=10; n<20 ; n+=5){
+    for (int n=10; n<35 ; n+=5){
         double sum = improved_gauss_quadrature(n, timing);
 
         cout << "N = " << n << endl;
-        cout << sum << endl;
+        cout << "Sum: " << sum << endl;
 
         double pi = acos(-1);
         double exact = (5*pi*pi)/(16*16);
 
-        cout << abs(exact - sum)/exact << endl;
+        cout << "Relative error: " << abs(exact - sum)/exact << "\n" << endl;
     }
     */
 
 
+
     // Monte Carlo
     int n = 1000000;
-    double lambda = 2.7;
+    double lambda = 1.9;
     bool timing = true;
 
     double sum = monte_carlo(n, lambda, timing);
@@ -63,7 +65,7 @@ int main()
     double pi = acos(-1);
     double exact = (5*pi*pi)/(16*16);
 
-    cout << "relative error: " << abs(exact - sum)/exact << endl;
+    cout << "relative error: " << abs(exact - sum)/exact << "\n" << endl;
 
 
 
@@ -71,18 +73,18 @@ int main()
     /*
     // Improved Monte Carlo
 
-        int n = 100000;
-        bool timing = true;
-        double sum = improved_monte_carlo(n, timing);
+//        int n = 100000;
+//        bool timing = true;
+        double sum4 = improved_monte_carlo(n, timing);
 
         cout << "N = " << n << endl;
         cout << "sum: " << sum << endl;
 
-        double pi = acos(-1);
-        double exact = (5*pi*pi)/(16*16);
+//        double pi = acos(-1);
+//        double exact = (5*pi*pi)/(16*16);
 
-        cout << "relative error: " << abs(exact - sum)/exact << endl;
-    */
+        cout << "relative error: " << abs(exact - sum4)/exact << endl;
+     */
 
     return 0;
 }
