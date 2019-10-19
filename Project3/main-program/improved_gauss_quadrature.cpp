@@ -24,7 +24,7 @@ double function_improved(double r1, double r2, double theta1, double theta2, dou
 }
 
 
-double improved_gauss_quadrature(int n, bool timing) {
+double improved_gauss_quadrature(int n) {
     double *r = new double [n+1];
     double *w_r = new double [n+1];
 
@@ -40,9 +40,6 @@ double improved_gauss_quadrature(int n, bool timing) {
     gauss_legendre(0, pi, theta, w_theta, n);
     gauss_legendre(0, 2*pi, phi, w_phi, n);
 
-    // start timing
-    auto start = chrono::high_resolution_clock::now();
-
     // six for loops, one for respectively r1, r2, theta1, theta2, phi1, phi2
     double sum = 0;
     for (int i=1; i<n+1; i++) {
@@ -57,15 +54,6 @@ double improved_gauss_quadrature(int n, bool timing) {
                 }
             }
         }
-    }
-
-    // end timing
-    auto finish = chrono::high_resolution_clock::now();
-
-    if (timing) {
-        // print time
-        chrono::duration<double> elapsed = (finish - start);
-        cout << "Improved Gauss Quadrature: " << elapsed.count() << " s\n";
     }
 
 

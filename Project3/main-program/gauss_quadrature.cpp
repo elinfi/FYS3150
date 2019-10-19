@@ -20,14 +20,11 @@ double function(double x1, double y1, double z1, double x2, double y2, double z2
     return value;
 }
 
-double gauss_quadrature(int n, double lambda, bool timing) {
+double gauss_quadrature(int n, double lambda) {
     double *x = new double [n];
     double *w = new double [n];
 
     gauss_legendre(-lambda, lambda, x, w, n);
-
-    // start timing
-    auto start = chrono::high_resolution_clock::now();
 
     // six for loops, one for respectively x1, y1, z1, x2, y2, z2
     double sum = 0;
@@ -43,15 +40,6 @@ double gauss_quadrature(int n, double lambda, bool timing) {
                 }
             }
         }
-    }
-
-    // end timing
-    auto finish = chrono::high_resolution_clock::now();
-
-    if (timing) {
-        // print time
-        chrono::duration<double> elapsed = (finish - start);
-        cout << "Gauss Quadrature: " << elapsed.count() << " s\n";
     }
 
     delete [] x;
