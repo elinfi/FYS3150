@@ -39,4 +39,5 @@ HEADERS += \
     monte_carlo.h
 
 DISTFILES += \
-    plot_gauss_legendre.py
+    plot_gauss_legendre.py \
+    plot_monte_carlo.py
