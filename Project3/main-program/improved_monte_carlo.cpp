@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 #include <chrono>
+#include <tuple>
 
 using namespace std;
 
@@ -22,15 +23,12 @@ double improved_function(double r1, double r2, double theta1, double theta2, dou
     return value;
 }
 
-double improved_monte_carlo(int n, bool timing) {
+tuple<double, double> improved_monte_carlo(int n, int seed) {
     double pi = acos(-1);
-    double a = 0;
     double b_theta = pi;
     double b_phi = 2*pi;
 
     // generate engine
-//    int seed = time_t(0);
-    int seed = 1424;
     mt19937_64 engine(seed);
 
     // generate uniform distribution
@@ -43,42 +41,26 @@ double improved_monte_carlo(int n, bool timing) {
     double sum = 0;
     double sum_sigma = 0;
 
-    // start timing
-    auto start = chrono::high_resolution_clock::now();
-
     for (int i=0; i<n; i++) {
         double r1 = exponential(engine);
         double r2 = exponential(engine);
 
         // use the mapping z = a + (b - a)*x, where x lies between 0 and 1
-        double theta1 = a + (b_theta - a)*uniform(engine);
-        double theta2 = a + (b_theta - a)*uniform(engine);
-        double phi1 = a + (b_phi - a)*uniform(engine);
-        double phi2 = a + (b_phi - a)*uniform(engine);
+        double theta1 = b_theta*uniform(engine);
+        double theta2 = b_theta*uniform(engine);
+        double phi1 = b_phi*uniform(engine);
+        double phi2 = b_phi*uniform(engine);
 
         double f = improved_function(r1, r2, theta1, theta2, phi1, phi2);
 
         sum += f;
         sum_sigma += f*f;
     }
-    double jacobi = pow(b_theta - a, 2)*pow(b_phi - a, 2);
+    double jacobi = pow(b_theta, 2)*pow(b_phi, 2);
     sum = sum/n;
-
-    // end timing
-    auto finish = chrono::high_resolution_clock::now();
-
-    if (timing) {
-        // print time
-        chrono::duration<double> elapsed = (finish - start);
-        cout << "Improved Monte Carlo: " << elapsed.count() << " s\n";
-    }
-
-
     sum_sigma  = sum_sigma/n;
 
     double variance = jacobi*(sum_sigma - sum*sum);
 
-    cout << "variance: " << variance << endl;
-
-    return jacobi*sum;
+    return make_tuple(jacobi*sum, variance);
 }
