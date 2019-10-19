@@ -3,6 +3,7 @@
 #include <random>
 #include <cmath>
 #include <chrono>
+#include <tuple>
 
 using namespace std;
 
@@ -21,25 +22,18 @@ double int_function(double x1, double y1, double z1, double x2, double y2, doubl
 }
 
 
-
-double monte_carlo(int n, double lambda, bool timing) {
+tuple<double, double> monte_carlo(int n, double lambda, int seed) {
     double a = -lambda;
     double b = lambda;
 
     // generate engine
-//    int seed = time_t(0);
-    int seed = 1337;
     mt19937_64 engine(seed);
 
-    // generate random numbers in the interval [a, b]
     // generate uniform distribution
     uniform_real_distribution<double> uniform(a, b);
 
     double sum = 0;
     double sum_sigma = 0;
-
-    // start timing
-    auto start = chrono::high_resolution_clock::now();
 
     for (int i=0; i<n; i++) {
         double x1 = uniform(engine);
@@ -57,20 +51,9 @@ double monte_carlo(int n, double lambda, bool timing) {
     double jacobi = pow(b-a, 6);
     sum = sum/n;
 
-    // end timing
-    auto finish = chrono::high_resolution_clock::now();
-
-    if (timing) {
-        // print time
-        chrono::duration<double> elapsed = (finish - start);
-        cout << "Monte Carlo: " << elapsed.count() << " s\n";
-    }
-
     sum_sigma  = sum_sigma/n;
 
     double variance = jacobi*(sum_sigma - sum*sum);
 
-    cout << "variance: " << variance << endl;
-
-    return jacobi*sum;
+    return make_tuple(jacobi*sum, variance);
 }
