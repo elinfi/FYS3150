@@ -40,4 +40,5 @@ HEADERS += \
 
 DISTFILES += \
     plot_gauss_legendre.py \
+    plot_mc_parallellized.py \
     plot_monte_carlo.py
