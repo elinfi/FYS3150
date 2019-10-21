@@ -13,7 +13,8 @@
 
 using namespace std;
 
-void print_gauss_quatrature(int n, double lambda, bool timing) {
+tuple<double, double> print_gauss_quadrature(int n, double lambda, bool timing) {
+    double sum, exact, rel_err;
     cout << "Gauss Quadrature" << endl;
 
     cout << "N = " << n << endl;
@@ -22,53 +23,62 @@ void print_gauss_quatrature(int n, double lambda, bool timing) {
     // start timing
     auto start = chrono::high_resolution_clock::now();
 
-    double sum = gauss_quadrature(n, lambda);
+    sum = gauss_quadrature(n, lambda);
 
     // end timing
     auto finish = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = (finish - start);
 
-    cout << sum << endl;
+    cout << "Sum: " << sum << endl;
 
     double pi = acos(-1);
-    double exact = (5*pi*pi)/(16*16);
+    exact = (5*pi*pi)/(16*16);
+    rel_err = abs(exact - sum)/exact;
 
-    cout << abs(exact - sum) << endl;
+    cout << "Relative error: " << rel_err << endl;
 
     if (timing) {
         // print time
-        chrono::duration<double> elapsed = (finish - start);
         cout << "Time: " << elapsed.count() << " s\n" << endl;
     }
+
+    return make_tuple(rel_err, elapsed.count());
 }
 
-void print_improved_gauss_quadrature(int n, bool timing) {
+tuple<double, double> print_improved_gauss_quadrature(int n, bool timing) {
+    double sum, exact, rel_err;
+
     cout << "Improved Gauss Quadrature" << endl;
 
     // start timing
     auto start = chrono::high_resolution_clock::now();
 
-    double sum = improved_gauss_quadrature(n);
+    sum = improved_gauss_quadrature(n);
 
     // end timing
     auto finish = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = (finish - start);
 
     cout << "N = " << n << endl;
     cout << "Sum: " << sum << endl;
 
     double pi = acos(-1);
-    double exact = (5*pi*pi)/(16*16);
+    exact = (5*pi*pi)/(16*16);
+    rel_err = abs(exact - sum)/exact;
 
-    cout << "Relative error: " << abs(exact - sum)/exact << endl;
+    cout << "Relative error: " << rel_err << endl;
 
     if (timing) {
         // print time
-        chrono::duration<double> elapsed = (finish - start);
         cout << "Time: " << elapsed.count() << " s\n" << endl;
     }
+
+    return make_tuple(rel_err, elapsed.count());
 }
 
 tuple<double, double> print_monte_carlo(int n, double lambda, bool timing, int seed) {
     double sum, variance, exact, rel_err;
+
     cout << "Brute force Monte Carlo" << endl;
 
     cout << "N = " << n << endl;
@@ -102,6 +112,7 @@ tuple<double, double> print_monte_carlo(int n, double lambda, bool timing, int s
 
 tuple<double, double> print_improved_monte_carlo(int n, bool timing, int seed) {
     double sum, variance, exact, rel_err;
+
     cout << "Improved Monte Carlo" << endl;
 
     // start timing
@@ -173,7 +184,7 @@ tuple<double, double> print_parallellized_monte_carlo(int &nargs, char* args[], 
     }
 
     //  End MPI
-    MPI_Finalize ();
+//    MPI_Finalize ();
 
     return make_tuple(rel_err, total_time);
 }
@@ -221,7 +232,7 @@ tuple<double, double> print_parallellized_improved_monte_carlo(int &nargs, char*
     }
 
     //  End MPI
-    MPI_Finalize ();
+//    MPI_Finalize ();
 
     return make_tuple(rel_err, total_time);
 }
@@ -232,25 +243,69 @@ int main(int nargs, char* args[]) {
     double lambda;
     bool timing;
 
-    n = 100000;
     lambda = 1.9;
     timing = true;
-    int seed = 1337;
 
     double rel_err, time, rel_err_improved, time_improved;
-//    tie(rel_err, time) = print_parallellized_improved_monte_carlo(nargs, args, n, timing);
 
-    string filename = "monte_carlo";
-
+    string filename = "parallellized_improved_mc_O0";
     ofstream ofile;
     ofile.open(filename);
 
-    for (n = 100; n < 1000000000; n*=10) {
-        tie(rel_err, time) = print_monte_carlo(n, lambda, timing, seed);
+    /*
+    for (n = 1; n < 40; n += 2) {
+        tie(rel_err, time) = print_gauss_quadrature(n, lambda, timing);
         ofile << rel_err << " " << time << "\n";
+    }
+    */
+
+
+    /*
+    n = 100;
+    while (n < 100000000) {
+        tie(rel_err, time) = print_parallellized_improved_monte_carlo(nargs, args, n, timing);
+        ofile << rel_err << " " << time << "\n";
+
+        if (n < 100000) {
+            n += 2000;
+        }
+        else if (n < 1000000) {
+            n += 200000;
+        }
+        else if (n < 10000000){
+            n += 2000000;
+        }
+        else {
+            n += 20000000;
+        }
+    }
+    */
+
+
+    /*
+    for (n=100; n < 100000000; n *= 10) {
+        tie(rel_err, time) = print_parallellized_improved_monte_carlo(nargs, args, n, timing);
+        ofile << 2*n << " " << time << "\n";
     }
 
     ofile.close();
+    MPI_Finalize ();
+    */
+
+
+    /*
+    for (n=5; n<40; n += 5) {
+        tie(rel_err, time) = print_gauss_quadrature(n, lambda, timing);
+        tie(rel_err, time) = print_improved_gauss_quadrature(n, timing);
+    }
+    */
+
+
+    /*
+    for (n=100; n < 10000000000; n *= 10) {
+        tie(rel_err, time) = print_improved_monte_carlo(n, timing, time_t(0));
+    }
+    */
 
     return 0;
 }
