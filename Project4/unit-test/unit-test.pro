@@ -25,7 +25,6 @@ LIBS += \
 
 SOURCES += \
         main.cpp \
-        ../main-program/ising_model.cpp \
         unit_tests.cpp \
         ../main-program/mc_metropolis.cpp
 
