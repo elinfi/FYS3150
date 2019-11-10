@@ -1,5 +1,4 @@
 #include <iostream>
-#include "ising_model.h"
 #include "mc_metropolis.h"
 #include <mpi.h>
 
@@ -12,7 +11,7 @@ int main(int args, char* argv[])
     int N = 1000000;
     double temp = 1;
 
-    ising_model(L, N, temp);
+    tuple <double, double, double, double, double> values = markov_chain(N, L, temp);
 
     MPI_Finalize();
 

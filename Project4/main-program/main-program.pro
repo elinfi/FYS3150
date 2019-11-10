@@ -22,10 +22,10 @@ QMAKE_CXXFLAGS += $$system(mpicxx --showme:compile) -DMPICH_IGNORE_CXX_SEEK
 QMAKE_CXXFLAGS_RELEASE += $$system(mpicxx --showme:compile) -DMPICH_IGNORE_CXX_SEEK
 
 SOURCES += \
-        ising_model.cpp \
         mc_metropolis.cpp \
-        main.cpp
+        main.cpp \
+        visualize.cpp
 
 HEADERS += \
-    ising_model.h \
-    mc_metropolis.h
+    mc_metropolis.h \
+    visualize.h

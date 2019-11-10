@@ -1,5 +1,5 @@
 #include "mc_metropolis.h"
-#include "ising_model.h"
+#include "visualize.h"
 #include <mpi.h>
 #include <iostream>
 #include <random>
@@ -26,7 +26,7 @@ int sum_neighbour (mat A, int i, int j, int L) {
     return dE;
 }
 
-void markov_chain (mat A, int N, int L, double temp) {
+tuple <double, double, double, double, double> markov_chain (int N, int L, double temp) {
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     int seed = time(0)+world_rank*10;
@@ -35,18 +35,37 @@ void markov_chain (mat A, int N, int L, double temp) {
     // generate engine
     mt19937_64 engine(seed);
 
-    // generate integers with uniform distribution
+    // generate integers in interval [0, 1] with uniform distribution
+    uniform_int_distribution<int> uniform(0, 1);
+
+    // generate integers in interval [0, L-1] with uniform distribution
     uniform_int_distribution<int> int_uniform(0, L-1);
 
     // generate double with uniform distribution
     uniform_real_distribution<double> double_uniform(0, 1);
 
 
-    int x, y, dE, num;
+    int x, y, dE;
     double r, k;
-    double energy, expected_energy, energy_squared;
-    double magnet, expected_magnet, magnet_squared, magnet_abs;
+    double energy, expected_energy, energy_squared, E_variance;
+    double magnet, expected_magnet, magnet_squared, M_variance, magnet_abs;
     double Cv, Chi;
+    tuple <double, double, double, double, double> values;
+
+    // Initializing spin matrix
+    Mat<double> A(L, L, fill::zeros);
+    for (int i=0; i<L; i++) {
+        for (int j=0; j<L; j++) {
+            int num = uniform(engine);
+
+            if (num == 0) {
+                A(i, j) = -1;
+            }
+            else {
+                A(i, j) = num;
+            }
+        }
+    }
 
     // initialize variables
     k = 1;                  // Boltzmann constant
@@ -73,7 +92,6 @@ void markov_chain (mat A, int N, int L, double temp) {
     }
 
     dE = 0;
-    num = 0;
     for (int i=0; i<N; i++) {
         // Loop over all spins, pick a random spin each time
         for (int j=0; j<L*L; j++) {
@@ -86,8 +104,7 @@ void markov_chain (mat A, int N, int L, double temp) {
             r = double_uniform(engine);
 
             if (r <= w[dE + 8]) {
-                num += 1;
-                A(x, y) *= -1;
+                A(x, y) *= -1.0;
 
                 energy += dE;
                 magnet += A(x, y)*2;
@@ -120,11 +137,19 @@ void markov_chain (mat A, int N, int L, double temp) {
     magnet_squared /= double(N);
     magnet_abs /= double(N);
 
-    Cv = (energy_squared - pow(expected_energy, 2))/(k*temp*temp);        // heat capacity
-    Chi = (magnet_squared - pow(expected_magnet, 2))/(k*temp);         // susceptibility
+    E_variance = (energy_squared - pow(expected_energy, 2))/(L*L*temp*temp);
+    M_variance = (magnet_squared - pow(expected_magnet, 2))/(L*L*temp*temp);
 
-//    double values [] = {expected_energy, energy_squared, expected_magnet, magnet_squared, Cv, Chi};
+    expected_energy /= double(L*L);
+    expected_magnet /= double(L*L);
+    magnet_abs /= double(L*L);
 
-    cout << num << " " << expected_energy << " " << magnet_abs << " " << expected_magnet << endl;
+    Cv = (energy_squared - pow(expected_energy, 2))/(k*temp*temp);      // heat capacity
+    Chi = (magnet_squared - pow(expected_magnet, 2))/(k*temp);          // susceptibility
 
+    values = make_tuple(expected_energy, E_variance, expected_magnet, M_variance, magnet_abs);
+
+    cout << expected_energy << " " << magnet_abs << " " << expected_magnet << endl;
+
+    return values;
 }
