@@ -1,9 +1,2 @@
-#include <iostream>
-
-using namespace std;
-
-int main()
-{
-    cout << "Hello World!" << endl;
-    return 0;
-}
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
