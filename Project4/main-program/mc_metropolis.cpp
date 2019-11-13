@@ -26,7 +26,7 @@ int sum_neighbour (mat A, int i, int j, int L) {
     return dE;
 }
 
-tuple <double, double, double, double, double> markov_chain (int N, int L, double temp) {
+tuple <double, double, double, double, double> markov_chain (int N, int L, double temp, bool random_spin) {
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     int seed = time(0)+world_rank*10;
@@ -49,20 +49,22 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
     double r, k;
     double energy, expected_energy, energy_squared, E_variance;
     double magnet, expected_magnet, magnet_squared, M_variance, magnet_abs;
-    double Cv, Chi;
     tuple <double, double, double, double, double> values;
 
     // Initializing spin matrix
-    Mat<double> A(L, L, fill::zeros);
-    for (int i=0; i<L; i++) {
-        for (int j=0; j<L; j++) {
-            int num = uniform(engine);
+    Mat<double> A(L, L, fill::ones);
 
-            if (num == 0) {
-                A(i, j) = -1;
-            }
-            else {
-                A(i, j) = num;
+    if (random_spin) {
+        for (int i=0; i<L; i++) {
+            for (int j=0; j<L; j++) {
+                int num = uniform(engine);
+
+                if (num == 0) {
+                    A(i, j) = -1;
+                }
+                else {
+                    A(i, j) = num;
+                }
             }
         }
     }
@@ -144,8 +146,6 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
     expected_magnet /= double(L*L);
     magnet_abs /= double(L*L);
 
-    Cv = (energy_squared - pow(expected_energy, 2))/(k*temp*temp);      // heat capacity
-    Chi = (magnet_squared - pow(expected_magnet, 2))/(k*temp);          // susceptibility
 
     values = make_tuple(expected_energy, E_variance, expected_magnet, M_variance, magnet_abs);
 
