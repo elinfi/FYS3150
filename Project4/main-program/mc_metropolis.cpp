@@ -1,6 +1,6 @@
 #include "mc_metropolis.h"
 #include "visualize.h"
-#include <mpi.h>
+//#include <mpi.h>
 #include <iostream>
 #include <random>
 #include <cmath>
@@ -27,9 +27,10 @@ int sum_neighbour (mat A, int i, int j, int L) {
 }
 
 tuple <double, double, double, double, double> markov_chain (int N, int L, double temp, bool random_spin) {
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-    int seed = time(0)+world_rank*10;
+//    int world_rank;
+//    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+//    int seed = time(0)+world_rank*10;
+    int seed = time(0);
 //    int seed = 1024;
 
     // generate engine
@@ -124,12 +125,14 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
         }
 
 
-        // Update expectation values
-        expected_energy += energy;
-        energy_squared += energy*energy;
-        expected_magnet += magnet;
-        magnet_squared += magnet*magnet;
-        magnet_abs += abs(magnet);
+        if (N > 5000) {
+            // Update expectation values
+            expected_energy += energy;
+            energy_squared += energy*energy;
+            expected_magnet += magnet;
+            magnet_squared += magnet*magnet;
+            magnet_abs += abs(magnet);
+        }
     }
 
     // Normalize average values
@@ -149,7 +152,7 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
 
     values = make_tuple(expected_energy, E_variance, expected_magnet, M_variance, magnet_abs);
 
-    cout << expected_energy << " " << magnet_abs << " " << expected_magnet << endl;
+//    cout << expected_energy << " " << magnet_abs << " " << expected_magnet << endl;
 
     return values;
 }
