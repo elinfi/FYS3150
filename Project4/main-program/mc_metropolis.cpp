@@ -1,6 +1,5 @@
 #include "mc_metropolis.h"
 #include "visualize.h"
-//#include <mpi.h>
 #include <iostream>
 #include <random>
 #include <cmath>
@@ -27,11 +26,7 @@ int sum_neighbour (mat A, int i, int j, int L) {
 }
 
 tuple <double, double, double, double, double> markov_chain (int N, int L, double temp, bool random_spin) {
-//    int world_rank;
-//    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-//    int seed = time(0)+world_rank*10;
-    int seed = time(0);
-//    int seed = 1024;
+    int seed = time(0) + omp_get_thread_num()*10;
 
     // generate engine
     mt19937_64 engine(seed);
