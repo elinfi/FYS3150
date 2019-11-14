@@ -15,7 +15,7 @@ int main()
 //    MPI_Comm_rank (MPI_COMM_WORLD, &my_rank);
 
     int N = 50000;
-    int L = 40;
+//    int L = 40;
     bool random_spin = true;
     double E, E_variance, M, M_variance, M_abs;
 
@@ -30,21 +30,26 @@ int main()
         cout << t_list[i] << endl;
     }
 
-    string file = "4e_L40_N5e5_2_23_01_.txt";
+    string file;
     ofstream ofile;
     ofile.open(file);
     ofile << n << endl;
 
     #pragma omp parallel for
-    for (int i=0; i<n; i++) {
-        double t = t_list[i];
-        tuple <double, double, double, double, double> values = markov_chain(N, L, t, random_spin);
-        tie(E, E_variance, M, M_variance, M_abs) = values;
+    for (int L = 40; L < 110; L+=20) {
+        file = "4e_" + to_string(L) + "_N5e5_22_24_01.txt";
+        ofile.open(file);
+        ofile << n << endl;
+        for (int i=0; i<n; i++) {
+            double t = t_list[i];
+            tuple <double, double, double, double, double> values = markov_chain(N, L, t, random_spin);
+            tie(E, E_variance, M, M_variance, M_abs) = values;
 
-        double Cv = E_variance/(t*t);         // heat capacity
-        double Chi = M_variance/(t*t);        // susceptibility
-        cout << t << " " << E << " " << M_abs << " " << Cv << " " << Chi << endl;
-        ofile << t << " " << E << " " << M_abs << " " << Cv << " " << Chi << endl;
+            double Cv = E_variance/(t*t);         // heat capacity
+            double Chi = M_variance/(t*t);        // susceptibility
+            cout << t << " " << E << " " << M_abs << " " << Cv << " " << Chi << endl;
+            ofile << t << " " << E << " " << M_abs << " " << Cv << " " << Chi << endl;
+        }
     }
 
 
