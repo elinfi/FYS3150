@@ -120,7 +120,7 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
         }
 
 
-        if (N > 5000) {
+        if (N > 7000) {
             // Update expectation values
             expected_energy += energy;
             energy_squared += energy*energy;
