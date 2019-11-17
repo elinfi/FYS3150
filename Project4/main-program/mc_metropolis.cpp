@@ -25,7 +25,7 @@ int sum_neighbour (mat A, int i, int j, int L) {
     return dE;
 }
 
-tuple <double, double, double, double, double> markov_chain (int N, int L, double temp, bool random_spin) {
+tuple <double, double, double, double, double, double> markov_chain (int N, int L, double temp, bool random_spin) {
     int seed = time(0) + omp_get_thread_num()*10;
 
     // generate engine
@@ -44,8 +44,8 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
     int x, y, dE;
     double r, k;
     double energy, expected_energy, energy_squared, E_variance;
-    double magnet, expected_magnet, magnet_squared, M_variance, magnet_abs;
-    tuple <double, double, double, double, double> values;
+    double magnet, expected_magnet, magnet_squared, M_variance, magnet_abs, M_abs_variance;
+    tuple <double, double, double, double, double, double> values;
 
     // Initializing spin matrix
     Mat<double> A(L, L, fill::ones);
@@ -95,7 +95,6 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
         for (int j=0; j<L*L; j++) {
             x = int_uniform(engine);
             y = int_uniform(engine);
-//            A(x, y) *= -1;                      // flip a random selected spin in the lattice
 
             dE = sum_neighbour(A, x, y, L);     // change in energy level
 
@@ -107,16 +106,6 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
                 energy += dE;
                 magnet += A(x, y)*2;
             }
-
-//            if (r > w[dE + 8]) {                // reject the new state
-//                A(x, y) *= -1;
-//            }
-
-//            else {                              // accept the new state
-//                energy += dE;
-//                magnet += 2*A(x, y);
-//                num += 1;
-//            }
         }
 
 
@@ -137,17 +126,15 @@ tuple <double, double, double, double, double> markov_chain (int N, int L, doubl
     magnet_squared /= double(N);
     magnet_abs /= double(N);
 
-    E_variance = (energy_squared - pow(expected_energy, 2))/(L*L*temp*temp);
-    M_variance = (magnet_squared - pow(expected_magnet, 2))/(L*L*temp*temp);
+    E_variance = (energy_squared - pow(expected_energy, 2))/(L*L);
+    M_variance = (magnet_squared - pow(expected_magnet, 2))/(L*L);
+    M_abs_variance = (magnet_squared - pow(magnet_abs, 2))/(L*L);
 
     expected_energy /= double(L*L);
     expected_magnet /= double(L*L);
     magnet_abs /= double(L*L);
 
-
-    values = make_tuple(expected_energy, E_variance, expected_magnet, M_variance, magnet_abs);
-
-//    cout << expected_energy << " " << magnet_abs << " " << expected_magnet << endl;
+    values = make_tuple(expected_energy, E_variance, expected_magnet, M_variance, magnet_abs, M_abs_variance);
 
     return values;
 }
