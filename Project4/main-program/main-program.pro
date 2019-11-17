@@ -28,12 +28,10 @@ LIBS += -fopenmp
 
 SOURCES += \
         mc_metropolis.cpp \
-        main.cpp \
-        visualize.cpp
+        main.cpp
 
 HEADERS += \
-    mc_metropolis.h \
-    visualize.h
+    mc_metropolis.h
 
 DISTFILES += \
     plot_4e.py \
