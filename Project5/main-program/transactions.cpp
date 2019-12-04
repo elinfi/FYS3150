@@ -7,8 +7,9 @@
 using namespace std;
 using namespace arma;
 
+void test_transactions(int N, double m0, vec &m);
 
-void transactions(int N, double m0, double lambda, double txn, ofstream& ofile) {
+void transactions(int N, double m0, double lambda, double alpha, double gamma, double txn, ofstream& ofile) {
     int seed = time(0);
 
     // generate engine
@@ -23,18 +24,25 @@ void transactions(int N, double m0, double lambda, double txn, ofstream& ofile) 
 
     // Store the 500 agents in a vector with initial amount of money m0
     vec m = zeros<vec>(N);
-    vec m_mean = zeros<vec>(N);
-    m_mean.fill(m0);
+    m.fill(m0);
 
-    for (int n=0; n<N; n++) {
-        m.fill(m0);
-        for (int t=0; t<txn; t++) {
-            // choose a random pair (i, j)
-            int i = int_uniform(engine);
-            int j = int2_uniform(engine);
-            if (j >= i) {
-                j += 1;
-            }
+    // Matrix to store the number of interactions between two agents
+    Mat<double> C(N, N, fill::zeros);
+
+    for (int t=0; t<txn; t++) {
+        // choose a random pair (i, j)
+        int i = int_uniform(engine);
+        int j = int2_uniform(engine);
+        if (j >= i) {
+            j += 1;
+        }
+
+        double p = pow(abs(m[i] - m[j]), -alpha)*pow(C(min(i, j), max(i, j)) + 1, gamma);
+        double r = double_uniform(engine);
+
+        if (r < p) {
+            // update number of interactions
+            C(min(i, j), max(i,j)) += 1;
 
             // choose a random reassignment eps
             double eps = double_uniform(engine);
@@ -43,27 +51,37 @@ void transactions(int N, double m0, double lambda, double txn, ofstream& ofile) 
             double dm = (1 - lambda)*(eps*m[j] - (1 - eps)*m[i]);
             m[i] += dm;
             m[j] -= dm;
-
-            m_mean[i] += m[i];
-            m_mean[j] += m[j];
         }
+
     }
 
-    m_mean /= N;
+    test_transactions(N, m0, m);
 
-    double mean = 0;
+
+    double mean = sum(m);
     double mean2 = 0;
-    for (int i=0; i<N-1; i++) {
-        mean += m_mean[i];
-        mean2 += m_mean[i]*m_mean[i];
-//        ofile << m_mean[i] << " ";
+    for (int i=0; i<N; i++) {
+        mean2 += m[i]*m[i];
+//        ofile << m[i] << " ";
     }
 //    ofile << "\n";
 
-    mean /= N;
     mean2 /= N;
+    mean /= N;
 
-    double var = mean2 - mean*mean;
+    double var = (mean2 - mean*mean);
     ofile <<txn << " " << var << endl;
 
+
+}
+
+void test_transactions(int N, double m0, vec &m) {
+    double m_init = N*m0;
+    double m_actual = sum(m);
+
+    double tol = 1e-5;
+    if ((m_init - m_actual) > tol) {
+        cout << "Money is not conserved" << endl;
+        cout << m_init - m_actual << endl;
+    }
 }
