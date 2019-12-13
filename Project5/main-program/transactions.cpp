@@ -37,7 +37,14 @@ void transactions(int N, double m0, double lambda, double alpha, double gamma, d
             j += 1;
         }
 
-        double p = pow(abs(m[i] - m[j]), -alpha)*pow(C(min(i, j), max(i, j)) + 1, gamma);
+        double p;
+        if (m[i] == m[j]) {
+            p = pow(C(min(i, j), max(i, j)) + 1, gamma);
+        }
+        else {
+            p = pow(abs(m[i] - m[j]), -alpha)*pow(C(min(i, j), max(i, j)) + 1, gamma);
+        }
+
         double r = double_uniform(engine);
 
         if (r < p) {
