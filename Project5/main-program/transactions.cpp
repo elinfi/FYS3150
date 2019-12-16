@@ -9,7 +9,7 @@ using namespace arma;
 
 void test_transactions(int N, double m0, vec &m);
 
-void transactions(int N, double m0, double lambda, double alpha, double gamma, double txn, ofstream& ofile) {
+void transactions(int N, double m0, double lambda, double alpha, double gamma, double txn, bool var, bool hist, ofstream& ofile) {
     int seed = time(0);
 
     // generate engine
@@ -29,6 +29,7 @@ void transactions(int N, double m0, double lambda, double alpha, double gamma, d
     // Matrix to store the number of interactions between two agents
     Mat<double> C(N, N, fill::zeros);
 
+
     for (int t=0; t<txn; t++) {
         // choose a random pair (i, j)
         int i = int_uniform(engine);
@@ -39,7 +40,7 @@ void transactions(int N, double m0, double lambda, double alpha, double gamma, d
 
         double p;
         if (m[i] == m[j]) {
-            p = pow(C(min(i, j), max(i, j)) + 1, gamma);
+            p = 2;
         }
         else {
             p = pow(abs(m[i] - m[j]), -alpha)*pow(C(min(i, j), max(i, j)) + 1, gamma);
@@ -59,27 +60,29 @@ void transactions(int N, double m0, double lambda, double alpha, double gamma, d
             m[i] += dm;
             m[j] -= dm;
         }
-
     }
 
     test_transactions(N, m0, m);
 
+    if (var) {
+        double mean = sum(m);
+        double mean2 = 0;
+        for (int i=0; i<N; i++) {
+            mean2 += m[i]*m[i];
+        }
 
-    double mean = sum(m);
-    double mean2 = 0;
-    for (int i=0; i<N; i++) {
-        mean2 += m[i]*m[i];
-//        ofile << m[i] << " ";
+        mean2 /= N;
+        mean /= N;
+
+        double var = (mean2 - mean*mean);
+        ofile <<txn << " " << var << endl;
     }
-//    ofile << "\n";
-
-    mean2 /= N;
-    mean /= N;
-
-    double var = (mean2 - mean*mean);
-    ofile <<txn << " " << var << endl;
-
-
+    if (hist) {
+        for (int i=0; i<N; i++) {
+            ofile << m[i] << " ";
+        }
+        ofile << "\n";
+    }
 }
 
 void test_transactions(int N, double m0, vec &m) {
