@@ -1,5 +1,6 @@
 *.txt
 test
+unit-testing/
 
 # Created by https://www.gitignore.io/api/qt,c++,python,qtcreator
 # Edit at https://www.gitignore.io/?templates=qt,c++,python,qtcreator
