@@ -18,5 +18,5 @@ HEADERS += \
 
 DISTFILES += \
     plot_5c.py \
-    plot_variance.py \
-    plotting.py
+    plot_rel_diff.py \
+    plot_variance.py
